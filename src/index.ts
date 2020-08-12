@@ -119,6 +119,8 @@ export const drawSandbox = (animation: Behavior<Scene>) => {
     console.log("time", time);
     // draw time
     timeCounter.innerText = `time: ${time}`;
+    // modify time slider value
+    slider.value = `${time}`;
   });
 
   // adds play + pause callbacks to buttons
@@ -132,9 +134,12 @@ export const drawSandbox = (animation: Behavior<Scene>) => {
   });
 
   // slider to change time value
-  slider.addEventListener("change", () => {
+  slider.addEventListener("input", () => {
     console.log("slider change", slider.value);
+    pause();
     setTime(Number(slider.value));
+    // if was playing before, then play
+    // if (oldPauseState === "play") play()
   });
 };
 
