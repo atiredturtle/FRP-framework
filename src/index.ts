@@ -86,6 +86,9 @@ export const drawSandbox = (animation: Behavior<Scene>) => {
   const pauseButton = document.createElement("button");
   pauseButton.appendChild(document.createTextNode("Pause"));
 
+  const restartButton = document.createElement("button");
+  restartButton.appendChild(document.createTextNode("restart"));
+
   // set up time counter
   const timeCounter = document.createElement("div");
 
@@ -102,6 +105,7 @@ export const drawSandbox = (animation: Behavior<Scene>) => {
     canvas,
     playButton,
     pauseButton,
+    restartButton,
     timeCounter,
     pauseStatus,
     slider
@@ -122,7 +126,8 @@ export const drawSandbox = (animation: Behavior<Scene>) => {
     time: timeB(t),
     scene: animation(t),
   });
-  const { play, pause, setTime, isPaused } = mainSandbox(
+
+  const { play, pause, restart, setTime, isPaused } = mainSandbox(
     getState,
     (state: State) => {
       const { time, scene } = state;
@@ -138,7 +143,7 @@ export const drawSandbox = (animation: Behavior<Scene>) => {
     }
   );
 
-  // adds play + pause callbacks to buttons
+  // adds time control callbacks to buttons
   playButton.addEventListener("click", () => {
     console.log("play");
     play();
@@ -146,6 +151,10 @@ export const drawSandbox = (animation: Behavior<Scene>) => {
   pauseButton.addEventListener("click", () => {
     console.log("pause");
     pause();
+  });
+  restartButton.addEventListener("click", () => {
+    console.log("restart");
+    restart();
   });
 
   // slider to change time value
@@ -164,6 +173,7 @@ export const drawSandbox = (animation: Behavior<Scene>) => {
 interface MainSandbox {
   play: () => void;
   pause: () => void;
+  restart: () => void;
   setTime: (t: Time) => void;
   isPaused: () => boolean;
 }
@@ -192,6 +202,9 @@ export const mainSandbox = <A>(
   const pause = () => {
     paused = true;
   };
+  const restart = () => {
+    time = 0;
+  };
   const setTime = (t: Time) => {
     time = t;
   };
@@ -200,6 +213,7 @@ export const mainSandbox = <A>(
   return {
     play,
     pause,
+    restart,
     setTime,
     isPaused,
   };
