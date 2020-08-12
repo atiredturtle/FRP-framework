@@ -78,6 +78,7 @@ export const drawSandbox = (animation: Behavior<Scene>) => {
 
   // set up canvas
   const canvas = document.createElement("canvas");
+
   // set up buttons
   const playButton = document.createElement("button");
   playButton.appendChild(document.createTextNode("Play"));
@@ -88,13 +89,23 @@ export const drawSandbox = (animation: Behavior<Scene>) => {
   // set up time counter
   const timeCounter = document.createElement("div");
 
+  // set up pause status
+  const pauseStatus = document.createElement("div");
+
   // set up slider
   const slider = document.createElement("input");
   slider.type = "range";
   slider.max = `${MAX_TIME}`;
 
   // add all elements to main div
-  sandboxDiv.append(canvas, playButton, pauseButton, timeCounter, slider);
+  sandboxDiv.append(
+    canvas,
+    playButton,
+    pauseButton,
+    timeCounter,
+    pauseStatus,
+    slider
+  );
 
   // add the newly created element and its content into the DOM
   document.body.appendChild(sandboxDiv);
@@ -122,6 +133,8 @@ export const drawSandbox = (animation: Behavior<Scene>) => {
       timeCounter.innerText = `time: ${time}`;
       // modify time slider value
       slider.value = `${time}`;
+      // draw pause status
+      pauseStatus.innerText = isPaused() ? "paused" : "playing";
     }
   );
 
@@ -139,7 +152,6 @@ export const drawSandbox = (animation: Behavior<Scene>) => {
   slider.addEventListener("input", () => {
     console.log("slider change", slider.value);
     const wasPaused = isPaused();
-    console.log("was paused", wasPaused);
     pause();
     setTime(Number(slider.value));
     // resume playing if wasn't paused before
