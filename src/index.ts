@@ -73,9 +73,6 @@ const CANVAS_HEIGHT = 500;
 const MAX_TIME = 1000;
 export const drawSandbox = (animation: Behavior<Scene>) => {
   // ======CREATES DOM ELEMENTS======
-  const sandboxDiv = document.createElement("div");
-  sandboxDiv.setAttribute("id", "sandbox");
-
   // set up canvas
   const canvas = document.createElement("canvas");
 
@@ -99,17 +96,21 @@ export const drawSandbox = (animation: Behavior<Scene>) => {
   const slider = document.createElement("input");
   slider.type = "range";
   slider.max = `${MAX_TIME}`;
+  // slider.style["width"] = `${CANVAS_WIDTH}px`;
+  slider.style["flexGrow"] = "1";
+
+  // ======ARRANGES DOM ELEMENTS======
+  const sandboxDiv = document.createElement("div");
+  sandboxDiv.setAttribute("id", "sandbox");
+  const controlsDiv = document.createElement("div");
+
+  // add controls to control div
+  controlsDiv.append(playButton, pauseButton, restartButton, slider);
+  controlsDiv.style["width"] = `${CANVAS_WIDTH}px`;
+  controlsDiv.style["display"] = "flex";
 
   // add all elements to main div
-  sandboxDiv.append(
-    canvas,
-    playButton,
-    pauseButton,
-    restartButton,
-    timeCounter,
-    pauseStatus,
-    slider
-  );
+  sandboxDiv.append(canvas, controlsDiv, timeCounter, pauseStatus);
 
   // add the newly created element and its content into the DOM
   document.body.appendChild(sandboxDiv);
