@@ -111,17 +111,19 @@ export const drawSandbox = (animation: Behavior<Scene>) => {
     time: timeB(t),
     scene: animation(t),
   });
-  const { play, pause, setTime } = mainSandbox(getState, (state: State) => {
-    const { time, scene } = state;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) throw Error("no ctx found");
-    scene.forEach((r) => draw(ctx, r));
-    console.log("time", time);
-    // draw time
-    timeCounter.innerText = `time: ${time}`;
-    // modify time slider value
-    slider.value = `${time}`;
-  });
+  const { play, pause, setTime, isPaused } = mainSandbox(
+    getState,
+    (state: State) => {
+      const { time, scene } = state;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw Error("no ctx found");
+      scene.forEach((r) => draw(ctx, r));
+      // draw time
+      timeCounter.innerText = `time: ${time}`;
+      // modify time slider value
+      slider.value = `${time}`;
+    }
+  );
 
   // adds play + pause callbacks to buttons
   playButton.addEventListener("click", () => {
@@ -136,10 +138,14 @@ export const drawSandbox = (animation: Behavior<Scene>) => {
   // slider to change time value
   slider.addEventListener("input", () => {
     console.log("slider change", slider.value);
+    const wasPaused = isPaused();
+    console.log("was paused", wasPaused);
     pause();
     setTime(Number(slider.value));
-    // if was playing before, then play
-    // if (oldPauseState === "play") play()
+    // resume playing if wasn't paused before
+    if (!wasPaused) {
+      play();
+    }
   });
 };
 
@@ -147,6 +153,7 @@ interface MainSandbox {
   play: () => void;
   pause: () => void;
   setTime: (t: Time) => void;
+  isPaused: () => boolean;
 }
 export const mainSandbox = <A>(
   b: Behavior<A>,
@@ -176,10 +183,12 @@ export const mainSandbox = <A>(
   const setTime = (t: Time) => {
     time = t;
   };
+  const isPaused = () => paused;
 
   return {
     play,
     pause,
     setTime,
+    isPaused,
   };
 };
