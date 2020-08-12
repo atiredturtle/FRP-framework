@@ -70,6 +70,7 @@ export type Scene = Shapes[];
 
 const CANVAS_WIDTH = 700;
 const CANVAS_HEIGHT = 500;
+const MAX_TIME = 1000;
 export const drawSandbox = (animation: Behavior<Scene>) => {
   // ======CREATES DOM ELEMENTS======
   const sandboxDiv = document.createElement("div");
@@ -88,7 +89,12 @@ export const drawSandbox = (animation: Behavior<Scene>) => {
   const timeCounter = document.createElement("div");
 
   // set up slider
-  sandboxDiv.append(canvas, playButton, pauseButton, timeCounter);
+  const slider = document.createElement("input");
+  slider.type = "range";
+  slider.max = `${MAX_TIME}`;
+
+  // add all elements to main div
+  sandboxDiv.append(canvas, playButton, pauseButton, timeCounter, slider);
 
   // add the newly created element and its content into the DOM
   document.body.appendChild(sandboxDiv);
@@ -105,7 +111,7 @@ export const drawSandbox = (animation: Behavior<Scene>) => {
     time: timeB(t),
     scene: animation(t),
   });
-  const { play, pause } = mainSandbox(getState, (state: State) => {
+  const { play, pause, setTime } = mainSandbox(getState, (state: State) => {
     const { time, scene } = state;
     const ctx = canvas.getContext("2d");
     if (!ctx) throw Error("no ctx found");
@@ -124,11 +130,18 @@ export const drawSandbox = (animation: Behavior<Scene>) => {
     console.log("pause");
     pause();
   });
+
+  // slider to change time value
+  slider.addEventListener("change", () => {
+    console.log("slider change", slider.value);
+    setTime(Number(slider.value));
+  });
 };
 
 interface MainSandbox {
   play: () => void;
   pause: () => void;
+  setTime: (t: Time) => void;
 }
 export const mainSandbox = <A>(
   b: Behavior<A>,
@@ -148,16 +161,20 @@ export const mainSandbox = <A>(
     }
   }, 10);
 
-  // controls time
+  // time control callbacks
   const play = () => {
     paused = false;
   };
   const pause = () => {
     paused = true;
   };
+  const setTime = (t: Time) => {
+    time = t;
+  };
 
   return {
     play,
     pause,
+    setTime,
   };
 };
