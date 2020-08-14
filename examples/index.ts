@@ -5,6 +5,7 @@ import {
   constB,
   timeB,
   lift,
+  slowTime,
   main,
   Scene,
 } from "../src";
@@ -12,7 +13,13 @@ import {
 const WIDTH = 700;
 const HEIGHT = 500;
 
-const getCharacterPos = lift((t) => ({ x: t, y: 0 }), timeB);
+const getSlowCharacterPos = lift(
+  (t) => ({ x: t, y: 50 + Math.sin((1 / 2) * t) * 10 }),
+  slowTime(3),
+  timeB
+);
+
+const getCharacterPos = lift((t) => ({ x: t, y: 200 }), timeB);
 
 const canvasBackground: Rect = {
   x: 0,
@@ -24,7 +31,17 @@ const canvasBackground: Rect = {
 drawSandbox(
   (t: Time): Scene => {
     const { x, y } = getCharacterPos(t);
-    return [canvasBackground, { x, y, color: "red", width: 50, height: 100 }];
+    const slow = getSlowCharacterPos(t);
+    const characterRect: Rect = { x, y, color: "red", width: 50, height: 100 };
+    const slowCharacterRect: Rect = {
+      x: slow.x,
+      y: slow.y,
+      color: "green",
+      width: 50,
+      height: 100,
+    };
+
+    return [canvasBackground, characterRect, slowCharacterRect];
   }
 );
 

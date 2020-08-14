@@ -25,3 +25,6 @@ export function lift<A>(
 ): Behavior<A> {
   return (t) => f(...behaviors.map((b) => b(t)));
 }
+
+export const slowTime = (delta: number): Behavior<Time> => (t: Time) =>
+  t / delta;
