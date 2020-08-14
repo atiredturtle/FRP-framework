@@ -1,5 +1,6 @@
 import { Behavior, Time } from "./types";
 import { timeB } from "./behavior";
+import { World, createWorld } from "./world";
 import { Scene, draw } from "./drawing";
 
 // main function to run behaviors and provide time
@@ -24,7 +25,7 @@ export const main = <A>(b: Behavior<A>, cb: (a: A) => void): void => {
 const CANVAS_WIDTH = 700;
 const CANVAS_HEIGHT = 500;
 const MAX_TIME = 1000;
-export const drawSandbox = (animation: Behavior<Scene>) => {
+export const drawSandbox = (animation: (w: World) => Behavior<Scene>) => {
   // ======CREATES DOM ELEMENTS======
   // set up canvas
   const canvas = document.createElement("canvas");
@@ -76,9 +77,9 @@ export const drawSandbox = (animation: Behavior<Scene>) => {
     time: Time;
     scene: Scene;
   };
-  const getState = (t: Time): State => ({
+  const getState = (w: World) => (t: Time): State => ({
     time: timeB(t),
-    scene: animation(t),
+    scene: animation(w)(t),
   });
 
   const { play, pause, restart, setTime, isPaused } = mainSandbox(
@@ -94,7 +95,8 @@ export const drawSandbox = (animation: Behavior<Scene>) => {
       slider.value = `${time}`;
       // draw pause status
       pauseStatus.innerText = isPaused() ? "paused" : "playing";
-    }
+    },
+    canvas
   );
 
   // adds time control callbacks to buttons
@@ -132,17 +134,21 @@ interface MainSandbox {
   isPaused: () => boolean;
 }
 export const mainSandbox = <A>(
-  b: Behavior<A>,
-  cb: (a: A) => void
+  b: (w: World) => Behavior<A>,
+  cb: (a: A) => void,
+  node: HTMLElement
 ): MainSandbox => {
   let time = 0;
   let paused = true;
+
+  const { world, setWorldTime } = createWorld(node);
   // runs interval to provide time
   setInterval(() => {
     // console.log(`time: ${time}`);
-    const value = b(time);
+    const value = b(world)(time);
     cb(value);
 
+    setWorldTime(time);
     // increment time
     if (!paused) {
       time++;

@@ -1,5 +1,9 @@
 import {
   Time,
+  World,
+  stepper,
+  mapStream,
+  filterStream,
   Rect,
   drawSandbox,
   constB,
@@ -8,6 +12,7 @@ import {
   slowTime,
   main,
   Scene,
+  Behavior,
 } from "../src";
 
 const WIDTH = 700;
@@ -28,22 +33,43 @@ const canvasBackground: Rect = {
   width: WIDTH,
   height: HEIGHT,
 };
-drawSandbox(
-  (t: Time): Scene => {
-    const { x, y } = getCharacterPos(t);
-    const slow = getSlowCharacterPos(t);
-    const characterRect: Rect = { x, y, color: "red", width: 50, height: 100 };
-    const slowCharacterRect: Rect = {
-      x: slow.x,
-      y: slow.y,
-      color: "green",
-      width: 50,
-      height: 100,
-    };
+// const moveCharacters: Behavior<Scene> = (t: Time) => {
+//   const { x, y } = getCharacterPos(t);
+//   const slow = getSlowCharacterPos(t);
+//   const characterRect: Rect = { x, y, color: "red", width: 50, height: 100 };
+//   const slowCharacterRect: Rect = {
+//     x: slow.x,
+//     y: slow.y,
+//     color: "green",
+//     width: 50,
+//     height: 100,
+//   };
+//
+//   return [canvasBackground, characterRect, slowCharacterRect];
+// };
 
-    return [canvasBackground, characterRect, slowCharacterRect];
-  }
-);
+const makeRect = (x, y): Rect => {
+  const dim = 50;
+  return {
+    x: x - dim / 2,
+    y: y - dim / 2,
+    color: "red",
+    width: dim,
+    height: dim,
+  };
+};
+// drawSandbox(moveCharacters);
+function animation4(world: World): Behavior<Scene> {
+  return lift(
+    (rect: Rect): Scene => [canvasBackground, rect],
+    stepper(
+      makeRect(10, 10),
+      mapStream(({ x, y }) => makeRect(x, y), world.click)
+    )
+  );
+}
+
+drawSandbox(animation4);
 
 // type State = {
 //   characterPos: { x: number; y: number };
